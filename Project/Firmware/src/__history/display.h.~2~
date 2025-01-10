@@ -1,0 +1,19 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
+ 
+#include <stdint.h>
+ 
+// Display states for cycling between time, date, and temperature
+typedef enum {
+    DISPLAY_TIME,
+    DISPLAY_DATE,
+    DISPLAY_TEMPERATURE
+} DisplayState;
+ 
+void init_display(void);
+void display_time(uint8_t hours, uint8_t minutes);
+void display_date(uint8_t date, uint8_t month, uint8_t year);
+void display_temperature(float temperature);
+void clear_display(void);
+ 
+#endif // DISPLAY_H

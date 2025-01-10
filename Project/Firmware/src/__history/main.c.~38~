@@ -1,0 +1,116 @@
+#include "main.h"
+#include "hardware.h"
+#include "system.h"
+#include "timer.h"
+#include "adc.h"
+#include "tempr.h"
+#include "scheduler.h"
+#include "rtc.h"
+#include <stdio.h> // For printf/debugging
+
+#define DISPLAY_INTERVAL_MS 10000 // Switch display every 10 seconds
+
+typedef enum {
+    DISPLAY_TIME,
+    DISPLAY_DATE,
+    DISPLAY_TEMPERATURE
+} display_mode_t;
+
+static display_mode_t current_mode = DISPLAY_TIME; // Start with time display
+
+// Task to manage the display of time, date, and temperature
+void display_task(s_task_handle_t me, s_task_msg_t **msg, void *arg) {
+    static uint32_t last_switch_ticks = 0; // Last time the display was switched
+    uint32_t current_ticks = get_ticks_counter();
+
+    // Only update the display every DISPLAY_INTERVAL_MS
+    if ((current_ticks - last_switch_ticks) >= DISPLAY_INTERVAL_MS) {
+        last_switch_ticks = current_ticks; // Update the last switch time
+
+        // Switch the display mode
+        switch (current_mode) {
+            case DISPLAY_TIME: {
+                uint8_t hours, minutes, seconds;
+                if (get_time_date(&hours, &minutes, &seconds, NULL, NULL, NULL, NULL)) {
+                    printf("Displaying Time: %02d:%02d\n", hours, minutes);
+                    display_time(hours, minutes); // Function to display time
+                }
+                current_mode = DISPLAY_DATE;
+                break;
+            }
+            case DISPLAY_DATE: {
+                uint8_t date, month, year;
+                if (get_time_date(NULL, NULL, NULL, NULL, &date, &month, &year)) {
+                    printf("Displaying Date: %02d/%02d/%02d\n", date, month, year);
+                    display_date(date, month, year); // Function to display date
+                }
+                current_mode = DISPLAY_TEMPERATURE;
+                break;
+            }
+            case DISPLAY_TEMPERATURE: {
+                float temperature = read_temperature();
+                printf("Displaying Temperature: %.2f°C\n", temperature);
+                display_temperature(temperature); // Function to display temperature
+                current_mode = DISPLAY_TIME;
+                break;
+            }
+        }
+    }
+
+    s_task_flush_msgs(msg); // Flush messages if any
+}
+
+// Initialize the display hardware and create the display task
+bool init_display(void) {
+    bool ret = true; // Initialize the ret variable
+
+    // Create the display task
+    ret &= s_task_create(
+        true,                    // Task is enabled
+        S_TASK_NORMAL_PRIORITY,  // Normal priority for the task
+        1000,                    // Periodicity in ms
+        display_task,            // Task function
+        NULL,                    // No specific argument
+        NULL                     // No message queue for this task
+    );
+
+    if (ret) {
+        printf("Display initialized successfully.\n");
+    } else {
+        printf("Failed to initialize display.\n");
+    }
+
+    return ret; // Return the result of task creation
+}
+
+// Main function
+void main() {
+    bool ret;
+    delay_ms(100);                  /* Power up delay, wait for 100ms */
+
+    // Initialize scheduler
+    ret = scheduler_init(get_ticks_counter);
+
+    if (ret) {
+        /* Initialize system */
+        ret &= init_hw();           /* Initialize HW and create LED heartbeat task */
+        ret &= init_system();       /* Initialize system and enable interrupt(s) (events) */
+        ret &= init_adc();
+        ret &= init_temp_sensor();
+        ret &= init_display();      /* Initialize display and create task */
+
+        /* Success? */
+        if (ret) {
+            while (true) {
+                scheduler();        /* Run scheduler forever */
+            }
+        } else {
+            printf("Initialization failed.\n");
+            while (true);           /* Stall */
+        }
+    } else {
+        printf("Scheduler initialization failed.\n");
+        while (true);               /* Stall */
+    }
+}
+

@@ -1,0 +1,51 @@
+#include "display.h"
+#include "main.h" // Include main if it has hardware definitions or utility functions like millis()
+#include "scheduler.h"
+
+// Example GPIO setup for segment control, adjust these as necessary
+#define SEG_A_PIN  1
+#define SEG_B_PIN  2
+// Define the rest of the segment control pins
+ 
+// Initialize display hardware
+bool init_display(void) {
+    // Initialize display hardware
+    // Set GPIO pins or other display-related setup
+    return true; // Indicate success
+}
+// Display time on a 7-segment display
+void display_time(uint8_t hours, uint8_t minutes) {
+    clear_display();
+    // Assuming hours and minutes are displayed on different segments
+    write_digit(hours / 10, 0); // Display ten's place of hours
+    write_digit(hours % 10, 1); // Display one's place of hours
+    write_digit(minutes / 10, 2); // Display ten's place of minutes
+    write_digit(minutes % 10, 3); // Display one's place of minutes
+}
+ 
+// Display date on a 7-segment display
+void display_date(uint8_t date, uint8_t month, uint8_t year) {
+    clear_display();
+    write_digit(date / 10, 0); // Display ten's place of date
+    write_digit(date % 10, 1); // Display one's place of date
+    write_digit(month / 10, 2); // Display ten's place of month
+    write_digit(month % 10, 3); // Display one's place of month
+}
+ 
+// Display temperature on a 7-segment display
+void display_temperature(float temperature) {
+    clear_display();
+    int temp = (int)temperature; // Convert float to int, discard decimal
+    write_digit(temp / 10, 0); // Display ten's place of temperature
+    write_digit(temp % 10, 1); // Display one's place of temperature
+}
+ 
+// Clear the display
+void clear_display(void) {
+    // Code to turn off all segments
+}
+ 
+// Function to write a number to a specific digit
+void write_digit(uint8_t digit, uint8_t value) {
+    // Hardware-specific code to display a number on a given digit
+}

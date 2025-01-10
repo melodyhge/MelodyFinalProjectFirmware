@@ -1,0 +1,98 @@
+000     @SCRATCH
+000     @MEMSET.P1
+001     @SCRATCH
+001-002 @MEMSET.P1
+002     @SCRATCH
+003     @SCRATCH
+F41     CCP_10_LOW
+F41     CCP_10
+F42     CCP_10_HIGH
+F44     CCP_9
+F44     CCP_9_LOW
+F45     CCP_9_HIGH
+F47     CCP_8
+F47     CCP_8_LOW
+F48     CCP_8_HIGH
+F4A     CCP_3
+F4A     CCP_3_LOW
+F4B     CCP_3_HIGH
+F4F     CCP_2_LOW
+F4F     CCP_2
+F50     CCP_2_HIGH
+F6F     CCP_7
+F6F     CCP_7_LOW
+F70     CCP_7_HIGH
+F72     CCP_6
+F72     CCP_6_LOW
+F73     CCP_6_HIGH
+F75     CCP_5_LOW
+F75     CCP_5
+F76     CCP_5_HIGH
+F78     CCP_4_LOW
+F78     CCP_4
+F79     CCP_4_HIGH
+F83     PSP_DATA
+FB4.5   C1OUT
+FB4.6   C2OUT
+FB4.7   C3OUT
+FBC     CCP_1_LOW
+FBC     CCP_1
+FBD     CCP_1_HIGH
+FE1-FE2 @WRITE_PACKED_MEMORY.P1
+FE1-FE2 @READ_PACKED_MEMORY.P2
+FE9-FEA @WRITE_PROGRAM_MEMORY.P1
+FE9-FEA @MEMSET.P2
+FE9-FEA @READ_PACKED_MEMORY.P3
+FE9-FEA @READ_PROGRAM_MEMORY.P4
+FE9-FEA @WRITE_PACKED_MEMORY.P5
+FF6-FF8 @READ_PROGRAM_MEMORY.P1
+FF6-FF8 @WRITE_PROGRAM_MEMORY.P2
+
+ROM Allocation:
+
+Project Directory:
+    C:\Users\User\Downloads\Project\Firmware\src\
+
+Project Files:
+    main.c                                                  [10-Jan-25 02:37  CRC=8EA1BF15]
+    main.h                                                  [10-Jan-25 02:37  CRC=2DC1ACE6]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Devices\18F67K22.h [17-Jul-24 20:58  CRC=5B6D56E4]
+    target_port.h                                           [04-Mar-22 10:28  CRC=637B7B44]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\stdbool.h [17-Apr-19 13:48  CRC=969707C0]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\stdint.h [13-May-20 09:33  CRC=4FD89CC0]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\stdlibm.h [01-Apr-19 11:36  CRC=8206F698]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\stddef.h [30-Jan-19 12:26  CRC=897CEC6C]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\memmgmt.c [24-Feb-12 11:47  CRC=E82E24A3]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\string.h [06-Apr-20 08:43  CRC=B1605627]
+    ..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\ctype.h [03-Jan-08 15:55  CRC=2D1F019F]
+    display.h                                               [10-Jan-25 01:51  CRC=D872A938]
+    scheduler.h                                             [05-Oct-22 12:39  CRC=66A0179F]
+    scheduler_options.h                                     [28-Jul-21 15:38  CRC=0E36D1A7]
+    hardware.h                                              [09-Jan-25 23:17  CRC=4931C6E6]
+    system.h                                                [28-Jul-21 15:31  CRC=DAD40447]
+    timer.h                                                 [29-Jul-21 12:27  CRC=D872A938]
+    adc.h                                                   [18-Nov-24 14:23  CRC=8372A6CF]
+    tempr.h                                                 [09-Jan-25 22:29  CRC=CA7F87E2]
+
+Source signature=9620FF86
+Program memory checksum=0000
+Hex file CRC=0000
+
+Units:
+    C:\Users\User\Downloads\Project\Firmware\src\main (main)
+
+Compiler Settings:
+    Processor:      PIC18F67K22
+    Pointer Size:   16
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: SIGNED: 1,8,16
+    Float,Double:   32,32
+    Case Sensitive: Yes
+    Compile Mode:   ANSI
+
+Output Files:
+    XREF file:   main.xsym
+    Errors:      main.err
+    Ext Symbols: main.esym
+    Symbols:     main.sym

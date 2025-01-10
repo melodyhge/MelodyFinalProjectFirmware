@@ -1,0 +1,84 @@
+#include "main.h"
+#include "hardware.h"
+#include "system.h"
+#include "timer.h"
+#include "adc.h"
+#include "tempr.h"
+#include "display.h"
+#include "scheduler.h"
+
+void main()
+{
+    bool ret;
+    delay_ms(100);                  /*power up delay, wait a 100ms*/
+    /*Initialize scheduler:*/
+    ret = scheduler_init(get_ticks_counter);
+    
+    
+    if (true == ret)
+    {
+        //output_high(CT_COL);
+        /*Initialize system:*/
+        ret &= init_hw();           /*initialize HW and create LED heartbeat task*/
+        ret &= init_system();       /*initialize system and enable interrupt(s) (events)*/
+        ret &= init_adc();  
+        ret &= init_temp_sensor();
+        
+        /*initialize ADC sampling*/
+        /*. . . . . . .*/
+        if (true == ret)            /*success?*/
+        {
+            while (true)
+            {
+                scheduler();        /*run scheduler forever*/
+            }
+        }
+        else
+        {
+            while (true);           /*stall*/
+        }
+    }
+    else
+    {
+        while (true);               /*stall*/
+    }
+}
+
+void display_task(s_task_handle_t me, s_task_msg_t **msg, void *arg) {
+    static uint32_t last_switch_ticks = 0; // Last time the display was switched
+    uint32_t current_ticks = get_system_ticks();
+
+    // Only update the display every DISPLAY_INTERVAL_MS
+    if ((current_ticks - last_switch_ticks) >= DISPLAY_INTERVAL_MS) {
+        last_switch_ticks = current_ticks; // Update the last switch time
+
+        // Switch the display mode
+        switch (current_mode) {
+            case DISPLAY_TIME: {
+                uint8_t hours, minutes, seconds;
+                if (get_time_date(&hours, &minutes, &seconds, NULL, NULL, NULL, NULL)) {
+                    display_time(hours, minutes);
+                }
+                current_mode = DISPLAY_DATE;
+                break;
+            }
+            case DISPLAY_DATE: {
+                uint8_t date, month, year;
+                if (get_time_date(NULL, NULL, NULL, NULL, &date, &month, &year)) {
+                    display_date(date, month, year);
+                }
+                current_mode = DISPLAY_TEMPERATURE;
+                break;
+            }
+            case DISPLAY_TEMPERATURE: {
+                float temperature = read_temperature();
+                display_temperature(temperature);
+                current_mode = DISPLAY_TIME;
+                break;
+            }
+        }
+    }
+
+    s_task_flush_msgs(msg);
+}
+

@@ -1,0 +1,123 @@
+#include "main.h"
+#include "hardware.h"
+#include "system.h"
+#include "timer.h"
+#include "adc.h"
+#include "tempr.h"
+#include "scheduler.h"
+#include "rtc.h"
+
+// Constants
+#define DISPLAY_INTERVAL_MS 10000 // Switch display every 10 seconds
+
+// Enum for display mode
+typedef enum {
+    DISPLAY_TIME,
+    DISPLAY_DATE,
+    DISPLAY_TEMPERATURE
+} display_mode_t;
+
+static display_mode_t current_mode = DISPLAY_TIME; // Start with time display
+
+// Clear display function
+void clear_display(void) {
+    // Add your implementation to clear the display (e.g., turn off all segments).
+}
+
+// Function to display time
+void display_time(uint8_t hours, uint8_t minutes) {
+    clear_display();
+    // Add implementation for displaying the time (e.g., write to the 7-segment display).
+}
+
+// Function to display date
+void display_date(uint8_t date, uint8_t month, uint8_t year) {
+    clear_display();
+    // Add implementation for displaying the date.
+}
+
+// Function to display temperature
+void display_temperature(float temperature) {
+    clear_display();
+    // Add implementation for displaying the temperature.
+}
+
+// Task to manage display switching
+void display_task(s_task_handle_t me, s_task_msg_t **msg, void *arg) {
+    static uint32_t last_switch_ticks = 0; // Last time the display was switched
+    uint32_t current_ticks = get_ticks_counter();
+
+    // Only update the display every DISPLAY_INTERVAL_MS
+    if ((current_ticks - last_switch_ticks) >= DISPLAY_INTERVAL_MS) {
+        last_switch_ticks = current_ticks; // Update the last switch time
+
+        // Switch display mode
+        switch (current_mode) {
+            case DISPLAY_TIME: {
+                uint8_t hours, minutes, seconds;
+                if (get_time_date(&hours, &minutes, &seconds, NULL, NULL, NULL, NULL)) {
+                    display_time(hours, minutes);
+                }
+                current_mode = DISPLAY_DATE;
+                break;
+            }
+            case DISPLAY_DATE: {
+                uint8_t date, month, year;
+                if (get_time_date(NULL, NULL, NULL, NULL, &date, &month, &year)) {
+                    display_date(date, month, year);
+                }
+                current_mode = DISPLAY_TEMPERATURE;
+                break;
+            }
+            case DISPLAY_TEMPERATURE: {
+                float temperature = read_temperature();
+                display_temperature(temperature);
+                current_mode = DISPLAY_TIME;
+                break;
+            }
+        }
+    }
+
+    // Remove s_task_flush_msgs if unused or implement it
+}
+
+// Function to initialize display task
+bool init_display(void) {
+    return s_task_create(
+        true,                    // Task is enabled
+        S_TASK_NORMAL_PRIORITY,  // Normal priority
+        1000,                    // Task periodicity
+        display_task,            // Task function
+        NULL,                    // No argument
+        NULL                     // No messages
+    );
+}
+
+// Main function
+void main() {
+    bool ret;
+    delay_ms(100);                  /* Power-up delay, wait 100ms */
+
+    // Initialize scheduler
+    ret = scheduler_init(get_ticks_counter);
+
+    if (ret) {
+        /* Initialize system */
+        ret &= init_hw();           /* Initialize hardware */
+        ret &= init_system();       /* Enable interrupts and events */
+        ret &= init_adc();  
+        ret &= init_temp_sensor();
+        ret &= init_display();      /* Initialize display */
+
+        if (ret) {
+            while (true) {
+                scheduler();        /* Run scheduler forever */
+            }
+        } else {
+            while (true);           /* Stall */
+        }
+    } else {
+        while (true);               /* Stall */
+    }
+}
+

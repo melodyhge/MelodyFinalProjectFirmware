@@ -1,0 +1,120 @@
+#include "main.h"
+#include "hardware.h"
+#include "system.h"
+#include "timer.h"
+#include "adc.h"
+#include "tempr.h"
+#include "display.h"
+#include "scheduler.h"
+
+void main()
+{
+    bool ret;
+    delay_ms(100);                  /*power up delay, wait a 100ms*/
+    /*Initialize scheduler:*/
+    
+    
+    
+    if (true == ret)
+    {
+        //output_high(CT_COL);
+        /*Initialize system:*/
+        ret &= init_hw();           /*initialize HW and create LED heartbeat task*/
+        ret &= init_system();       /*initialize system and enable interrupt(s) (events)*/
+        ret &= init_adc();  
+        ret &= init_temp_sensor();
+        
+        /*initialize ADC sampling*/
+        /*. . . . . . .*/
+        if (true == ret)            /*success?*/
+        {
+            while (true)
+            {
+                scheduler();        /*run scheduler forever*/
+            }
+        }
+        else
+        {
+            while (true);           /*stall*/
+        }
+    }
+    else
+    {
+        while (true);               /*stall*/
+    }
+    
+    void display_task(s_task_handle_t me, s_task_msg_t **msg, void* arg);
+void set_segments(uint8_t base_pin, uint8_t segments);
+ 
+bool init_display(void)
+{
+    bool ret = true;
+    ret &= s_task_create(1, S_TASK_NORMAL_PRIORITY, 5000, display_task, NULL, NULL);
+    return ret;
+}
+ 
+void display_task(s_task_handle_t me, s_task_msg_t **msg, void* arg)
+{
+    static uint8_t turn = 0;
+    switch (turn)
+    {
+    case 0: // Display temperature
+        display_temperature();
+        break;
+ 
+    case 1: // Display time
+        display_time();
+        break;
+ 
+    case 2: // Display date
+        display_date();
+        break;
+    }
+ 
+    turn = (turn + 1) % 3; // Rotate between 0, 1, and 2
+}
+ 
+void display_temperature(void)
+{
+    float temperature = read_temperature(); // Fetch temperature from the LM35
+    clear_display();
+    int temp = (int)temperature; // Convert temperature to integer for display
+    write_digit(temp / 10, 0);   // Display ten's place
+    write_digit(temp % 10, 1);   // Display one's place
+}
+ 
+void display_time(void)
+{
+    uint8_t hours, minutes, seconds;
+    get_time_date(&hours, &minutes, &seconds, NULL, NULL, NULL, NULL); // Fetch time from RTC
+    clear_display();
+    write_digit(hours / 10, 0);  // Display ten's place of hours
+    write_digit(hours % 10, 1);  // Display one's place of hours
+    write_digit(minutes / 10, 2); // Display ten's place of minutes
+    write_digit(minutes % 10, 3); // Display one's place of minutes
+}
+ 
+void display_date(void)
+{
+    uint8_t day, date, month, year;
+    get_time_date(NULL, NULL, NULL, &day, &date, &month, &year); // Fetch date from RTC
+    clear_display();
+    write_digit(date / 10, 0);  // Display ten's place of date
+    write_digit(date % 10, 1);  // Display one's place of date
+    write_digit(month / 10, 2); // Display ten's place of month
+    write_digit(month % 10, 3); // Display one's place of month
+}
+ 
+void clear_display(void)
+{
+    // Code to turn off all segments
+}
+ 
+void write_digit(uint8_t digit, uint8_t value)
+{
+    // Hardware-specific code to display a number on a given digit
+    set_segments(digit, value); // Example: Call set_segments function with digit and value
+}
+    
+    
+}
